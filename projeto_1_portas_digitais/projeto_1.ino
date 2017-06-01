@@ -29,10 +29,10 @@ unsigned long blinkThisFor;
 
 //Optional parameter "blinkThisFor" is used for intermittent blinking of some LED 
 //given a certain condition
-void controlLigth(LED *pLED, boolean watcher, unsigned long blinkThisFor = 0)
+void controlLigth(LED *pLED, boolean mark, unsigned long blinkThisFor = 0)
 {
 	//If my watcher is activated
-	if(!watcher)
+	if(!mark)
 	{
 		//and the blink interval is different from zero
 		if(blinkThisFor != 0)
