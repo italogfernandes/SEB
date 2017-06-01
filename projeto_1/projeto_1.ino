@@ -31,19 +31,25 @@ unsigned long blinkThisFor;
 //given a certain condition
 void controlLigth(LED *pLED, boolean watcher, unsigned long blinkThisFor = 0)
 {
+	//If my watcher is activated
 	if(!watcher)
 	{
-		pLED->state = false;
-		digitalWrite(pLED->pin, pLED->state);
-
-		if(blinkThis)
+		//and the blink interval is different from zero
+		if(blinkThisFor != 0)
 		{
+			unsigned long currentTime = millis();
 			if((currentTime - pLED->eventTime >= blinkThisFor) && !pLED->state)
 			{
 				pLED->state = !pLED->state;
 				pLED->eventTime = currentTime;
 				digitalWrite(pLED->pin, pLED->state);
 			}
+		}
+		//otherwize just turn it off
+		else
+		{
+			pLED->state = false;
+			digitalWrite(pLED->pin, pLED->state);
 		}	    
 	}
 	//Default algorithm to do something on a certain time interval
@@ -68,8 +74,8 @@ void controlLigth(LED *pLED, boolean watcher, unsigned long blinkThisFor = 0)
 void setup()
 {
 	//Defining the LED properties
-	redLED.onTime = 1000;
-	redLED.offTime = 1000;
+	redLED.onTime = 3000;
+	redLED.offTime = 3000;
 	redLED.pin = 13;
 
 	yellowLED.onTime = 1000;
