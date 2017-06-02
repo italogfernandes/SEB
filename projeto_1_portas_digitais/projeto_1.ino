@@ -9,8 +9,6 @@
  "Utilização das portas digitais do Arduino"
  */
 
-this is jut a test
-
 #define pinSWITCH 2
 
 //Struct that will store some LED properties
