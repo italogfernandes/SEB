@@ -9,6 +9,8 @@
  "Utilização das portas digitais do Arduino"
  */
 
+this is jut a test
+
 #define pinSWITCH 2
 
 //Struct that will store some LED properties
@@ -21,6 +23,7 @@ typedef struct
 	boolean state = false;
 }LED;
 
+//Some global variables
 LED redLED;
 LED yellowLED;
 LED greenLED;
@@ -29,10 +32,10 @@ unsigned long blinkThisFor;
 
 //Optional parameter "blinkThisFor" is used for intermittent blinking of some LED 
 //given a certain condition
-void controlLigth(LED *pLED, boolean mark, unsigned long blinkThisFor = 0)
+void controlLigth(LED *pLED, boolean watcher, unsigned long blinkThisFor = 0)
 {
 	//If my watcher is activated
-	if(!mark)
+	if(!watcher)
 	{
 		//and the blink interval is different from zero
 		if(blinkThisFor != 0)
