@@ -9,7 +9,81 @@
  "Utilização das portas analógicas do Arduino"
  */
 
-DO THIS SHIT USING CLASSES NOW MFK
+//Using classes without creating headers and cpp files
+class Potentiometer
+{
+	private:
+		int _pinPOT;
+		int _analogResolution = 1023; 
+		int _voltage;
+	public:
+		//Default method with optitional parameters	
+		Potentiometer(int pin, int voltage = 5, int analogResolution = 1023) 
+		{
+			_pinPOT = pin;
+			_voltage = voltage; //as default sets to 5 volts
+			_analogResolution = analogResolution; //as default sets to 2^10 bits
+		}
+
+		float readValue()
+		{
+			return analogRead(_pinPOT);
+		}
+
+		float readVoltage()
+		{
+			return ((float)analogRead(_pinPOT) * ((float)_voltage/(float)_analogResolution));
+		}
+};
+
+class LED
+{
+	private:
+		int _pinLED;
+		bool _state;
+
+	public:
+		void setLED(int pin)
+		{
+			_state = false;
+			_pinLED = pin;
+			pinMode(_pinLED, OUTPUT);
+			digitalWrite(_pinLED, _state);
+		}
+
+		void turnOn()
+		{
+			_state = true;
+			digitalWrite(_pinLED, _state);
+		}
+
+		void turnOff()
+		{
+			_state = false;
+			digitalWrite(_pinLED, _state);
+		}
+};
+
+LED ledArray[3];
+Potentiometer pot(0);
+
+void setup()
+{
+	for(int i = 0, pin = 13; i < 3; i++, pin--)
+	    ledArray[i].setLED(pin);
+	Serial.begin(9600);
+}
+
+void loop()
+{
+	for(int i = 0; i < 3; i++)
+	{
+		if(pot.readVoltage() < (float)i)
+			ledArray[i].turnOff();
+		else
+			ledArray[i].turnOn();
+	}
+}
 
 /* Or you could just do this:
 

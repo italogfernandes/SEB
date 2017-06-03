@@ -117,8 +117,10 @@ void setup()
 	pinMode(pinYELLOW,OUTPUT);
 	pinMode(pinGREEN,OUTPUT);
 	pinMode(pinSWITCH,INPUT_PULLUP);
+	//ISR, look up at arduino reference
 	attachInterrupt(digitalPinToInterrupt(pinSWITCH), intermittent, LOW);
 }
+//ISR function
 void intermittent()
 {
 	digitalWrite(pinRED,LOW);
