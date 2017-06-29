@@ -21,7 +21,6 @@ void setup()
 	Serial.begin(115200);
 	analogWriteResolution(10);
 	analogReadResolution(10);
-	referencia = analogRead(pinReferenia);
 }
 
 void loop()
@@ -41,7 +40,7 @@ void loop()
 	analogWrite(pinControlePWM, PID);
 	analogWrite(pinControleDAC, PID);
 
-	debug();
+	debug(2000);
 }
 
 int lerErro(int referencia)
@@ -54,12 +53,12 @@ int lerErro(int referencia)
 	return _erro;
 }
 
-void debug()
+void debug(int intervalo)
 {
 	static 	long tempoEvento;
 	long tempoAtual = millis();
 	
-	if(tempoAtual - tempoEvento >= 1000)
+	if(tempoAtual - tempoEvento >= intervalo)
 	{
 	    tempoEvento = tempoAtual;
 	    print("\n\nRefenrecia:");
