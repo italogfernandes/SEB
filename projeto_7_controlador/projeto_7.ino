@@ -4,7 +4,8 @@
   falta testar
 */
 
-#define pinReferenia  A0
+
+#
 #define pinValorLido  A1
 #define pinControlePWM  12
 #define pinControleDAC  DAC1

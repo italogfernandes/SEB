@@ -1,7 +1,7 @@
 /*
  Ronaldo Sena
  ronaldo.sena@outlook.com
- Maio de 2017
+ May 2017
  Use it as you please. If we meet some day, and you think
  this stuff was helpful, you can buy me a beer
 
