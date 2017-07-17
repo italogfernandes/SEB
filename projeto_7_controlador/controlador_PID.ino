@@ -22,7 +22,7 @@
 #define timeToIntegrate 1000
 #define timeToDerivate 1000
 
-int analogValue = pow(2,analogReadResolution);
+int analogValue = pow(2,analogResolution);
 int controlValue;
 float referenceValue;,
       processValue,
