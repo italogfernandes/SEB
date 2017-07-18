@@ -38,11 +38,11 @@ float sampleTime,
 void setup()
 {
   //Sets the baudrate as the maximum available
-	Serial.begin(115200);
+  Serial.begin(115200);
   //Sets both write and read resolution according to what
   //was define in the preprocessor directives
-	analogWriteResolution(analogResolution);
-	analogReadResolution(analogResolution);
+  analogWriteResolution(analogResolution);
+  analogReadResolution(analogResolution);
   //not strictly required, but nevertheless
   pinMode(pinPWM, OUTPUT);
 }
@@ -58,8 +58,8 @@ void loop()
       eventTime = currentTime;
       runPID();
   }
-  //Change this at the preprocessor directives 
-	debug(debugInterval);
+  //Change this at the preprocessor directives
+  debug(debugInterval);
 }
 
 //Main function of PID control
@@ -156,7 +156,7 @@ void debug()
 	if(currentTime - eventTime >= debugInterval)
 	{
 	    eventTime = currentTime;
-	    print("\nSetPoint:");
+	    print("\nSet Point:");
 	    println(setPoint);
 	    print("Process:");
 	    println(processVariable);
