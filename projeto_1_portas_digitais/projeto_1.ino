@@ -26,7 +26,6 @@ LED redLED;
 LED yellowLED;
 LED greenLED;
 boolean watcher;
-unsigned long blinkThisFor;
 
 //Optional parameter "blinkThisFor" is used for intermittent blinking of some LED 
 //given a certain condition
@@ -95,12 +94,10 @@ void setup()
 
 void loop()
 {
-	//Setting the blinking interval
-	blinkThisFor = 1000;
 	//Watcher for the blink
 	watcher = digitalRead(pinSWITCH);
 	controlLigth(&redLED,watcher);
-	controlLigth(&yellowLED,watcher,blinkThisFor);
+	controlLigth(&yellowLED,watcher,1000);
 	controlLigth(&greenLED,watcher);
 }
 
