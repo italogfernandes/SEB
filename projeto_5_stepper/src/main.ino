@@ -85,10 +85,12 @@ const uint8_t half_step_seq[8] = {8,12,4,6,2,3,1,9};
 
 class Stepper {
 private:
+  Timer _control_timer;
   uint8_t _pin_phase_A[2]; //Pinos da Fase A [Positivo] [Negativo]
   uint8_t _pin_phase_B[2]; //Pinos da Fase B [Positivo] [Negativo]
   acionamento_t _tipo_de_passo;
   uint8_t _passo_atual;
+  bool _clockwise;
 
   void alinharBobinas(uint8_t decimal){
     digitalWrite(_pin_phase_A[0], (decimal>>3)&0x01); //Bit 3
@@ -127,6 +129,8 @@ public:
     _pin_phase_B[1] = pinBNegative;
     _tipo_de_passo = tipo_de_passo;
     _passo_atual = 0;
+    _control_timer.setInterval(10);
+    _clockwise = true;
   }
 
   void begin(){
@@ -138,7 +142,11 @@ public:
 
   void setAcionamento(acionamento_t tipo_de_passo){
       _tipo_de_passo = tipo_de_passo;
-    }
+  }
+
+  void setStepInterval(uint32_t interval){
+    _control_timer.setInterval(interval);
+  }
 
   void doStep(){
       switch (_tipo_de_passo) {
@@ -155,6 +163,27 @@ public:
       ++_passo_atual = _passo_atual%8; //Incremento circular
     }
 
+  void rotateClockwise(){
+    _clockwise = true;
+    _control_timer.start();
+  }
+
+  void rotateAntiClockwise(){
+    _clockwise = false;
+    _control_timer.start();
+  }
+
+  void stop(){
+      _control_timer.stop();
+  }
+
+  void update(){
+    _control_timer.update();
+    if(_control_timer.elapsed){
+      doStep();
+      _control_timer.wait_next();
+    }
+  }
 };
 
 
@@ -162,8 +191,6 @@ public:
 //Variaveis globais //
 //////////////////////
 Stepper motor(8,9,10,11);
-Timer motor_control;
-
 bool status_led = false;
 
 //////////////////
@@ -174,17 +201,12 @@ void setup(){
   motor.begin();
   Serial.begin(UART_BAUDRATE);
   Serial.println("Hora do show porra!");
-  motor_control.start();
-  motor_control.setInterval(1000);
+  //Biiirl
+  motor.rotateClockwise();
 }
 
 void loop(){
-  motor_control.update();
-  if(motor_control.elapsed){
-    digitalWrite(LED_BUILTIN,status_led);
-    status_led = !status_led;
-    motor_control.wait_next();
-  }
+  motor.update();
 }
 /////////////////////////
 //End of Main Function //
