@@ -19,7 +19,7 @@ class Timer {
 private:
   unsigned long _actual_time;
   unsigned long _waited_time;
-  bool _running
+  bool _running;
   uint32_t _interval;
 
 public:
@@ -64,7 +64,7 @@ public:
     }
   }
 
-}
+};
 
 
 
@@ -127,7 +127,6 @@ public:
     _pin_phase_B[1] = pinBNegative;
     _tipo_de_passo = tipo_de_passo;
     _passo_atual = 0;
-    _angulo = 0;
   }
 
   void begin(){
@@ -135,7 +134,7 @@ public:
       pinMode(_pin_phase_B[0], OUTPUT);
       pinMode(_pin_phase_A[1], OUTPUT);
       pinMode(_pin_phase_B[1], OUTPUT);
-    }
+  }
 
   void setAcionamento(acionamento_t tipo_de_passo){
       _tipo_de_passo = tipo_de_passo;
@@ -176,6 +175,7 @@ void setup(){
   Serial.begin(UART_BAUDRATE);
   Serial.println("Hora do show porra!");
   motor_control.start();
+  motor_control.setInterval(1000);
 }
 
 void loop(){
