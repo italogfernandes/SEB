@@ -28,7 +28,7 @@ class Timer {
     Timer(uint32_t interval = 1000) {
       _interval = interval;
       elapsed = false;
-      _actual_time = millis();
+      _actual_time = micros();
       _waited_time = _actual_time + interval;
     }
 
@@ -55,7 +55,7 @@ class Timer {
     }
 
     void update() {
-      _actual_time = millis();
+      _actual_time = micros();
       if (_running) {
         if (_actual_time >= _waited_time) {
           _waited_time = _actual_time + _interval;
@@ -129,7 +129,7 @@ class Stepper {
       _pin_phase_B[1] = pinBNegative;
       _tipo_de_passo = tipo_de_passo;
       _passo_atual = 0;
-      _control_timer.setInterval(20);
+      _control_timer.setInterval(20000);
       _clockwise = true;
     }
 
@@ -150,6 +150,14 @@ class Stepper {
 
     uint32_t getStepInterval() {
       return _control_timer.getInterval();
+    }
+
+    void setFreq(uint32_t frequency){
+        setStepInterval(1000000/frequency);
+    }
+
+    uint32_t getFreq(){
+      return 1000000/getStepInterval();
     }
 
     void doStep() {
@@ -213,6 +221,7 @@ void setup() {
   Serial.println("s: Single-Step");
   Serial.println("d: Double-Step");
   Serial.println("h: Half-Step");
+  motor.setFreq(100);
   //Biiirl
   motor.rotateClockwise();
 }
@@ -223,13 +232,36 @@ void loop() {
     serialOp = Serial.read();
     switch (serialOp) {
       case '+':
-        motor.setStepInterval(motor.getStepInterval() - 1);
-        Serial.println("Step Interval: " + String(motor.getStepInterval()));
+        motor.setFreq(motor.getFreq() + 1);
+        Serial.println("Step Freq: " + String(motor.getFreq()) + " Hz");
+        Serial.println("Step Interval: " + String(motor.getStepInterval()) + " us");
+        break;
+      case '1':
+        motor.setFreq(motor.getFreq() + 10);
+        Serial.println("Step Freq: " + String(motor.getFreq()) + " Hz");
+        Serial.println("Step Interval: " + String(motor.getStepInterval()) + " us");
+        break;
+      case '2':
+        motor.setFreq(motor.getFreq() - 10);
+        Serial.println("Step Freq: " + String(motor.getFreq()) + " Hz");
+        Serial.println("Step Interval: " + String(motor.getStepInterval()) + " us");
+        break;
+      case '3':
+        motor.setFreq(motor.getFreq() + 100);
+        Serial.println("Step Freq: " + String(motor.getFreq()) + " Hz");
+        Serial.println("Step Interval: " + String(motor.getStepInterval()) + " us");
+        break;
+      case '4':
+        motor.setFreq(motor.getFreq() - 100);
+        Serial.println("Step Freq: " + String(motor.getFreq()) + " Hz");
+        Serial.println("Step Interval: " + String(motor.getStepInterval()) + " us");
         break;
       case '-':
-        motor.setStepInterval(motor.getStepInterval() + 1);
-        Serial.println("Step Interval: " + String(motor.getStepInterval()));
+        motor.setFreq(motor.getFreq() - 1);
+        Serial.println("Step Freq: " + String(motor.getFreq()) + " Hz");
+        Serial.println("Step Interval: " + String(motor.getStepInterval()) + " us");
         break;
+
       case 'p':
         motor.stop();
         Serial.println("Stopped");
