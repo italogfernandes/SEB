@@ -22,6 +22,7 @@ void Seq1(int i) //a variavel de argumento tem o mesmo nome de uma variavel glob
 {
   if(i == 1)
   {
+    Serial.println("\t\t\tLeds:\t51\t0\t0\t51"); //Nao estou com coisas para montar entao vou debugar com esses leds
     analogWrite(pinLed1, 51);
     analogWrite(pinLed2, 0);
     analogWrite(pinLed3, 0);
@@ -29,6 +30,7 @@ void Seq1(int i) //a variavel de argumento tem o mesmo nome de uma variavel glob
   }
   else
   {
+    Serial.println("\t\t\tLeds:\t0\t204\t204\t0");
     analogWrite(pinLed1, 0);
     analogWrite(pinLed2, 204);
     analogWrite(pinLed3, 204);
@@ -39,26 +41,31 @@ void Seq1(int i) //a variavel de argumento tem o mesmo nome de uma variavel glob
 void Seq2(int j) //Mesma coisa da variavel de argumento
 {
   if (j == 5) {
+    Serial.println("\t\t\tLeds:\t0\t0\t0\t0");
     analogWrite(pinLed1, 0);
     analogWrite(pinLed2, 0);
     analogWrite(pinLed3, 0);
     analogWrite(pinLed4, 0);
   } else if (j == 4) {
+    Serial.println("\t\t\tLeds:\t255\t255\t255\t255");
     analogWrite(pinLed1, 255);
     analogWrite(pinLed2, 255);
     analogWrite(pinLed3, 255);
     analogWrite(pinLed4, 255);
   } else if( j == 3) {
+    Serial.println("\t\t\tLeds:\t178\t178\t178\t0");
     analogWrite(pinLed1, 178);
     analogWrite(pinLed2, 178);
     analogWrite(pinLed3, 178);
     analogWrite(pinLed4, 0);
   } else if (j == 2) {
+    Serial.println("\t\t\tLeds:\t102\t102\t0\t0");
     analogWrite(pinLed1, 102);
     analogWrite(pinLed2, 102);
     analogWrite(pinLed3, 0);
     analogWrite(pinLed4, 0);
   } else {
+    Serial.println("\t\t\tLeds:\t51\t0\t0\t0");
     analogWrite(pinLed1, 51);
     analogWrite(pinLed2, 0);
     analogWrite(pinLed3, 0);
@@ -68,6 +75,7 @@ void Seq2(int j) //Mesma coisa da variavel de argumento
 
 void desliga()
 {
+  Serial.println("Destilar called - \t\t\tLeds:\t0\t0\t0\t0");
   analogWrite(pinLed1, 0);
   analogWrite(pinLed2, 0);
   analogWrite(pinLed3, 0);
@@ -107,10 +115,11 @@ void loop() {
   //Nao sei se o C++ do arduino tem garbage colector
   frase = string1 + indicadorSeq + string2 + tempo + string3; //Isso da concatenando certo?
   //Se nao tiver trocar indicadorSeq por String(indicadorSeq)
-  Serial.println(frase);
+  //Serial.println(frase);
 
   if(tempoatual - tempopassado >= tempo)
   {
+    Serial.println(frase); //Coloquei pra printar aqui pq estava complicado aquilo escrevendo tao rapido
     if(!digitalRead(pinChaveSeq)) //se a chave Seq estiver em 0
     {
       i = i+1;
@@ -121,7 +130,7 @@ void loop() {
 
       Seq1(i);
       indicadorSeq = 1;
-      Serial.println(i);
+      Serial.println("i: " + String(i));
     }
     else //caso a chave Seq estiver em 1
     {
@@ -132,7 +141,7 @@ void loop() {
       }
 
       Seq2(j);
-      Serial.println(j);
+      Serial.println("j: " + String(j));
       indicadorSeq = 2;
     }
 
