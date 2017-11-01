@@ -1,17 +1,17 @@
 /* UNIVERSIDADE FEDERAL DE UBERLANDIA
    Biomedical Engineering
    Autors: Ítalo G S Fernandes
-           Paulo Camargos
-           Nathalia
+           Paulo Camargos Silva 
+           Nathalia Rodrigues 
    contact: italogsfernandes@gmail.com
    URLs: https://github.com/italogfernandes/SEB
   Este codigo faz parte da disciplina de sinais e sistemas
-  para engenhara biomedica e visa realizar o controle de 
+  para engenhara biomedica e visa realizar o controle de
   um motor de passo.
   Nele existem 2 implementacoes, uma mais simples com delay
   e sem preocupacao com possiveis erros.
-  E outra mais elaborada, onde as principais funcoes foram 
-  encapsuladas como objetos e podem ser reutilizadas com 
+  E outra mais elaborada, onde as principais funcoes foram
+  encapsuladas como objetos e podem ser reutilizadas com
   maior facilidade.
     Esquema de montagem:
     Arduino - Dispositivo
@@ -45,8 +45,8 @@
 */
 
 //Descomente e comente qual versao você deseja executar:
-//#define VERSAO_COM_DELAY
-#define VERSAO_SEM_DELAY
+#define VERSAO_COM_DELAY
+//#define VERSAO_SEM_DELAY
 
 
 /////////////////////////////////////
@@ -101,6 +101,11 @@ void loop() {
       Serial.print(tempoespera);
       Serial.println(" ms");
     }
+  } else {
+    digitalWrite(pinAmais, 0);
+    digitalWrite(pinAmenos, 0);
+    digitalWrite(pinBmais, 0);
+    digitalWrite(pinBmenos, 0);
   }
 }
 void darpassosingle(int tempo) {
@@ -131,7 +136,7 @@ void darpassosingle(int tempo) {
 }
 
 void darpassodouble(int tempo) {
-  //Ta bugada essa
+
   digitalWrite(pinAmais, 1);
   digitalWrite(pinAmenos, 0);
   digitalWrite(pinBmais, 0);
@@ -190,15 +195,19 @@ void darpassodoubleanti(int tempo) {
 //IMPLEMENTACAO DA VERSAO SEM DELAY//
 /////////////////////////////////////
 #ifdef VERSAO_SEM_DELAY
+#define USING_ARDUINO_DUE
+//#define USING_ARUDINO_UNO
 
 ////////////
 //Defines //
 ////////////
 #define UART_BAUDRATE 115200
 
+
 ///////////
 //Clases //
 ///////////
+
 /////////////////////////////////////////////////
 // Implementacao de um timer atraves do millis //
 /////////////////////////////////////////////////
