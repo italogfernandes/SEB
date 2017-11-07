@@ -12,7 +12,11 @@
     3       -   LED para 40%
     4       -   LED para 60%
     5       -   LED para 80%
-    A4      -   Sinal do LDR com divisor de tensao*/
+    A4      -   Sinal do LDR com divisor de tensao
+    
+  ESTE CODIGO VISA APENAS CONFERENCIA
+  FAVOR NAO COPIAR DURANTE A SUA PROVA    
+*/
 #define pinADC A4 //Pino do conversor AD
 #define DARK_THRESHOLD 10 //Menor leitura obtida para o escuro
 #define LIGHT_THRESHOLD 980 //Maior leitura obtida para o claro
