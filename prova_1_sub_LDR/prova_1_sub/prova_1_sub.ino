@@ -1,3 +1,18 @@
+/* UNIVERSIDADE FEDERAL DE UBERLANDIA
+   Biomedical Engineering
+   Autors: Ítalo G S Fernandes
+   contact: italogsfernandes@gmail.com
+   URLs: https://github.com/italogfernandes/SEB
+  Este codigo faz parte da disciplina de sinais e sistemas
+  para engenhara biomedica e visa acender uma sequencia de leds
+  de acordo com a intensidade de luz incidente em um sensor
+    Esquema de montagem:
+    Arduino - Dispositivo
+    2       -   LED para 20%
+    3       -   LED para 40%
+    4       -   LED para 60%
+    5       -   LED para 80%
+    A4      -   Sinal do LDR com divisor de tensao*/
 #define pinADC A4 //Pino do conversor AD
 #define DARK_THRESHOLD 10 //Menor leitura obtida para o escuro
 #define LIGHT_THRESHOLD 980 //Maior leitura obtida para o claro
