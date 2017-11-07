@@ -1,3 +1,200 @@
+/* UNIVERSIDADE FEDERAL DE UBERLANDIA
+   Biomedical Engineering
+   Autors: Ítalo G S Fernandes
+           Paulo Camargos Silva 
+           Nathalia Rodrigues 
+   contact: italogsfernandes@gmail.com
+   URLs: https://github.com/italogfernandes/SEB
+  Este codigo faz parte da disciplina de sinais e sistemas
+  para engenhara biomedica e visa realizar o controle de
+  um motor de passo.
+  Nele existem 2 implementacoes, uma mais simples com delay
+  e sem preocupacao com possiveis erros.
+  E outra mais elaborada, onde as principais funcoes foram
+  encapsuladas como objetos e podem ser reutilizadas com
+  maior facilidade.
+    Esquema de montagem:
+    Arduino - Dispositivo
+    8       -   Chave Liga Desliga
+    9       -   Chave de Aumentar a Velocidade
+    10      -   Chave de Diminuir a Velocidade
+    11      -   Chave para Alterar Sentido de Rotacao
+    7       -   Terminal A+ (Positivo da Bobina A) do Motor de Passo
+    6       -   Terminal A- (Negativo da Bobina A) do Motor de Passo
+    5       -   Terminal B+ (Positivo da Bobina B) do Motor de Passo
+    3       -   Terminal B- (Negativo da Bobina B) do Motor de Passo
+    Obs: As chaves nao sao usadas no codigo mais elaborado,
+    este se comunica via comunicao Serial com Baudrate de 115200
+    Menu:
+       +: Mais Velocidade
+       -: Menos Velocidade
+       p: Parar
+       r: Rodar Sentido Horário
+       a: Rodar Sentido Anti-Horário
+       s: Single-Step
+       d: Double-Step
+       h: Half-Step
+
+   Para selecionar qual tipo de codigo voce deseja executar use:
+   Para selecionar a versao com delay:
+      #define VERSAO_COM_DELAY
+      //#define VERSAO_SEM_DELAY
+  Para selecionar a versao sem delay:
+      //#define VERSAO_COM_DELAY
+      #define VERSAO_SEM_DELAY
+*/
+
+//Descomente e comente qual versao você deseja executar:
+#define VERSAO_COM_DELAY
+//#define VERSAO_SEM_DELAY
+
+
+/////////////////////////////////////
+//IMPLEMENTACAO DA VERSAO COM DELAY//
+/////////////////////////////////////
+#ifdef VERSAO_COM_DELAY
+// Definição dos pinos
+#define pinLD 8
+#define pinVelmais 9
+#define pinVelmenos 10
+#define pinSentido 11
+#define pinAmais 7
+#define pinAmenos 6
+#define pinBmais 5
+#define pinBmenos 3
+int tempoespera = 20;
+
+void setup() {
+  pinMode(pinLD, INPUT_PULLUP);
+  pinMode(pinVelmais, INPUT_PULLUP);
+  pinMode(pinVelmenos, INPUT_PULLUP);
+  pinMode(pinSentido, INPUT_PULLUP);
+  pinMode(pinAmais, OUTPUT);
+  pinMode(pinAmenos, OUTPUT);
+  pinMode(pinBmais, OUTPUT);
+  pinMode(pinBmenos, OUTPUT);
+  Serial.begin(9600);
+}
+
+void loop() {
+  if (digitalRead(pinLD) == HIGH) {
+
+    if (digitalRead(pinSentido)) {
+      darpassodouble(tempoespera);
+    }
+    else {
+      darpassodoubleanti(tempoespera);
+    }
+
+    if (digitalRead(pinVelmais) == LOW) {
+      tempoespera = tempoespera - 1;
+      if (tempoespera < 5) {
+        tempoespera = 5; // velocidade maxima
+      }
+      Serial.print("Novo Tempo = ");
+      Serial.print(tempoespera);
+      Serial.println(" ms");
+    }
+    if (digitalRead(pinVelmenos) == LOW) {
+      tempoespera = tempoespera + 1;
+      Serial.print("Novo Tempo = ");
+      Serial.print(tempoespera);
+      Serial.println(" ms");
+    }
+  } else {
+    digitalWrite(pinAmais, 0);
+    digitalWrite(pinAmenos, 0);
+    digitalWrite(pinBmais, 0);
+    digitalWrite(pinBmenos, 0);
+  }
+}
+void darpassosingle(int tempo) {
+  digitalWrite(pinAmais, 1);
+  digitalWrite(pinAmenos, 0);
+  digitalWrite(pinBmais, 0);
+  digitalWrite(pinBmenos, 0);
+  Serial.println(" Passo 1");
+  delay(tempo);
+  digitalWrite(pinAmais, 0);
+  digitalWrite(pinAmenos, 0);
+  digitalWrite(pinBmais, 0);
+  digitalWrite(pinBmenos, 1);
+  //Serial.println(" Passo 2");
+  delay(tempo);
+  digitalWrite(pinAmais, 0);
+  digitalWrite(pinAmenos, 1);
+  digitalWrite(pinBmais, 0);
+  digitalWrite(pinBmenos, 0);
+  Serial.println(" Passo 3");
+  delay(tempo);
+  digitalWrite(pinAmais, 0);
+  digitalWrite(pinAmenos, 0);
+  digitalWrite(pinBmais, 1);
+  digitalWrite(pinBmenos, 0);
+  Serial.println(" Passo 4");
+  delay(tempo);
+}
+
+void darpassodouble(int tempo) {
+
+  digitalWrite(pinAmais, 1);
+  digitalWrite(pinAmenos, 0);
+  digitalWrite(pinBmais, 0);
+  digitalWrite(pinBmenos, 1);
+  // Serial.println(" Passo 1");
+  delay(tempo);
+  digitalWrite(pinAmais, 0);
+  digitalWrite(pinAmenos, 1);
+  digitalWrite(pinBmais, 0);
+  digitalWrite(pinBmenos, 1);
+  //  Serial.println(" Passo 2");
+  delay(tempo);
+  digitalWrite(pinAmais, 0);
+  digitalWrite(pinAmenos, 1);
+  digitalWrite(pinBmais, 1);
+  digitalWrite(pinBmenos, 0);
+  // Serial.println(" Passo 3");
+  delay(tempo);
+  digitalWrite(pinAmais, 1);
+  digitalWrite(pinAmenos, 0);
+  digitalWrite(pinBmais, 1);
+  digitalWrite(pinBmenos, 0);
+  //Serial.println(" Passo 4");
+  delay(tempo);
+}
+void darpassodoubleanti(int tempo) {
+  //Ta bugada essa
+  digitalWrite(pinAmais, 1);
+  digitalWrite(pinAmenos, 0);
+  digitalWrite(pinBmais, 0);
+  digitalWrite(pinBmenos, 1);
+  Serial.println(" Passo 1");
+  delay(tempo);
+  digitalWrite(pinAmais, 1);
+  digitalWrite(pinAmenos, 0);
+  digitalWrite(pinBmais, 1);
+  digitalWrite(pinBmenos, 0);
+  Serial.println(" Passo 2");
+  delay(tempo);
+  digitalWrite(pinAmais, 0);
+  digitalWrite(pinAmenos, 1);
+  digitalWrite(pinBmais, 1);
+  digitalWrite(pinBmenos, 0);
+  Serial.println(" Passo 3");
+  delay(tempo);
+  digitalWrite(pinAmais, 0);
+  digitalWrite(pinAmenos, 1);
+  digitalWrite(pinBmais, 0);
+  digitalWrite(pinBmenos, 1);
+  Serial.println(" Passo 4");
+  delay(tempo);
+}
+#endif /*VERSAO_COM_DELAY*/
+
+/////////////////////////////////////
+//IMPLEMENTACAO DA VERSAO SEM DELAY//
+/////////////////////////////////////
+#ifdef VERSAO_SEM_DELAY
 #define USING_ARDUINO_DUE
 //#define USING_ARUDINO_UNO
 
@@ -152,12 +349,12 @@ class Stepper {
       return _control_timer.getInterval();
     }
 
-    void setFreq(uint32_t frequency){
-        setStepInterval(1000000/frequency);
+    void setFreq(uint32_t frequency) {
+      setStepInterval(1000000 / frequency);
     }
 
-    uint32_t getFreq(){
-      return 1000000/getStepInterval();
+    uint32_t getFreq() {
+      return 1000000 / getStepInterval();
     }
 
     void doStep() {
@@ -172,7 +369,16 @@ class Stepper {
           doHalfStep();
           break;
       }
-      ++_passo_atual = _passo_atual % 8; //Incremento circular
+      if (_clockwise) {
+        ++_passo_atual = _passo_atual % 8; //Incremento circular
+      } else { //Decemento circular
+        if (_passo_atual == 0) {
+          _passo_atual = 7;
+        } else {
+          _passo_atual = _passo_atual - 1;
+        }
+
+      }
     }
 
     void rotateClockwise() {
@@ -202,7 +408,7 @@ class Stepper {
 //////////////////////
 //Variaveis globais //
 //////////////////////
-Stepper motor(8, 9, 10, 11); ///A+, A-, B+ , B-
+Stepper motor(7, 6, 5, 3); ///A+, A-, B+ , B-
 bool status_led = false;
 char serialOp;
 //////////////////
@@ -218,6 +424,7 @@ void setup() {
   Serial.println("-: Menos Velocidade");
   Serial.println("p: Parar");
   Serial.println("r: Rodar Sentido Horário");
+  Serial.println("a: Rodar Sentido Anti-Horário");
   Serial.println("s: Single-Step");
   Serial.println("d: Double-Step");
   Serial.println("h: Half-Step");
@@ -268,17 +475,21 @@ void loop() {
         break;
       case 'r':
         motor.rotateClockwise();
-        Serial.println("Started");
+        Serial.println("Started Clockwise");
+        break;
+      case 'a':
+        motor.rotateAntiClockwise();
+        Serial.println("Started AntiClockwise");
         break;
       case 's':
         motor.setAcionamento(SINGLE_STEP);
         Serial.println("Mode: Single-Step");
         break;
-        case 'd':
+      case 'd':
         motor.setAcionamento(DOUBLE_STEP);
         Serial.println("Mode: Double-Step");
         break;
-        case 'h':
+      case 'h':
         motor.setAcionamento(HALF_STEP);
         Serial.println("Mode: Half-Step");
         break;
@@ -290,3 +501,4 @@ void loop() {
 /////////////////////////
 //End of Main Function //
 /////////////////////////
+#endif /*VERSAO_SEM_DELAY*/
