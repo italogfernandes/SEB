@@ -159,11 +159,11 @@ class Timer_t {
 //Classe para gerar as formas de onda //
 ////////////////////////////////////////
 
-class SignalGenerator_t {
+class SignalGenerator {
 private:
   Timer_t _sampling_control;
   waveforms_t _waveform; //Acessible by getter and setter
-  uint8_t _actual_index;
+  uint16_t _actual_index;
   uint8_t _pin_out;
   uint8_t _resolution_bits;
   uint16_t _max_value_resolution;
@@ -196,7 +196,7 @@ private:
       break;
     }
     _actual_value = _actual_value*_amplitude + _offset;
-    ++_actual_index %= 500;
+    ++_actual_index = _actual_index % 500; //Incremento circular
     return _actual_value;
   }
 
@@ -206,7 +206,7 @@ private:
   }
 
 public:
-  SignalGenerator_t (uint8_t pin_out = DAC0,uint8_t resolution_bits = 12){
+  SignalGenerator (uint8_t pin_out = DAC0,uint8_t resolution_bits = 12){
     _pin_out = pin_out;
 
     _resolution_bits = resolution_bits;
@@ -229,7 +229,7 @@ public:
   }
 
   void generate_value(){
-    Serial.println(get_next());
+    Serial.println(String(get_next()));
   }
 
   void update() {
@@ -271,7 +271,7 @@ public:
 //////////////////////
 //Variaveis globais //
 //////////////////////
-SignalGenerator_t my_generator(); //lazy thing, work around...
+SignalGenerator my_generator; //lazy thing, work around...
 bool status_led = false;
 char serialOp;
 //////////////////
@@ -280,81 +280,11 @@ char serialOp;
 void setup() {
   pinMode(LED_BUILTIN, OUTPUT);
   Serial.begin(UART_BAUDRATE);
-  Serial.println("Hora do show porra!");
-  Serial.println("Envie um comando:");
-  Serial.println("+: Gerar");
-  Serial.println("p: Parar");
-  Serial.println("s: Seno");
-  Serial.println("r: Retangular");
-  Serial.println("t: Triangular");
-  Serial.println("a: Rampa");
-  Serial.println("e: ECG");
-  //Biiirl
+  Serial.println("Hora do show! Birl");
+  my_generator.setWaveform(ECG_WAVE);
   my_generator.start();
 }
 
 void loop() {
   my_generator.update();
 }
-//Ta bonito:
-// if (Serial.available()) {
-//   serialOp = Serial.read();
-//   switch (serialOp) {
-//     case '+':
-//       motor.setFreq(motor.getFreq() + 1);
-//       Serial.println("Step Freq: " + String(motor.getFreq()) + " Hz");
-//       Serial.println("Step Interval: " + String(motor.getStepInterval()) + " us");
-//       break;
-//     case '1':
-//       motor.setFreq(motor.getFreq() + 10);
-//       Serial.println("Step Freq: " + String(motor.getFreq()) + " Hz");
-//       Serial.println("Step Interval: " + String(motor.getStepInterval()) + " us");
-//       break;
-//     case '2':
-//       motor.setFreq(motor.getFreq() - 10);
-//       Serial.println("Step Freq: " + String(motor.getFreq()) + " Hz");
-//       Serial.println("Step Interval: " + String(motor.getStepInterval()) + " us");
-//       break;
-//     case '3':
-//       motor.setFreq(motor.getFreq() + 100);
-//       Serial.println("Step Freq: " + String(motor.getFreq()) + " Hz");
-//       Serial.println("Step Interval: " + String(motor.getStepInterval()) + " us");
-//       break;
-//     case '4':
-//       motor.setFreq(motor.getFreq() - 100);
-//       Serial.println("Step Freq: " + String(motor.getFreq()) + " Hz");
-//       Serial.println("Step Interval: " + String(motor.getStepInterval()) + " us");
-//       break;
-//     case '-':
-//       motor.setFreq(motor.getFreq() - 1);
-//       Serial.println("Step Freq: " + String(motor.getFreq()) + " Hz");
-//       Serial.println("Step Interval: " + String(motor.getStepInterval()) + " us");
-//       break;
-//
-//     case 'p':
-//       motor.stop();
-//       Serial.println("Stopped");
-//       break;
-//     case 'r':
-//       motor.rotateClockwise();
-//       Serial.println("Started Clockwise");
-//       break;
-//     case 'a':
-//       motor.rotateAntiClockwise();
-//       Serial.println("Started AntiClockwise");
-//       break;
-//     case 's':
-//       motor.setAcionamento(SINGLE_STEP);
-//       Serial.println("Mode: Single-Step");
-//       break;
-//     case 'd':
-//       motor.setAcionamento(DOUBLE_STEP);
-//       Serial.println("Mode: Double-Step");
-//       break;
-//     case 'h':
-//       motor.setAcionamento(HALF_STEP);
-//       Serial.println("Mode: Half-Step");
-//       break;
-//     default:
-//       break;
-//   }
