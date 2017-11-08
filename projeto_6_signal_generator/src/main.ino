@@ -17,6 +17,7 @@
     GND     - Ground comum
 */
 #define PINODAC DAC0
+#define PINOADC A0
 #define UART_BAUDRATE 115200
 
 const double ecg_wave[500] = {
@@ -182,7 +183,7 @@ private:
       case TRIANGLE_WAVE:
       _actual_value = (double) _actual_index / 250.0;
       if(_actual_value > 1){
-        _actual_value = 1 - _actual_value;
+        _actual_value = 2 - _actual_value;
       }
       break;
       case RAMP_WAVE:
@@ -196,13 +197,18 @@ private:
       break;
     }
     _actual_value = _actual_value*_amplitude + _offset;
-    ++_actual_index = _actual_index % 500; //Incremento circular
+    //Outro modo
+    // _actual_index = _actual_index +1;
+    // if(_actual_index >= 500){
+    //   _actual_index = 0;
+    // }
+    ++_actual_index %= 500; //Incremento circular
     return _actual_value;
   }
 
   void begin() {
-    pinMode(_pin_out, OUTPUT);
-    analogWriteResolution(_resolution_bits);
+    //pinMode(_pin_out, OUTPUT);
+    analogWriteResolution(12);
   }
 
 public:
@@ -229,7 +235,10 @@ public:
   }
 
   void generate_value(){
-    Serial.println(String(get_next()));
+    get_next();
+    analogWrite(DAC0,(uint16_t) _actual_value);
+    analogWrite(DAC1,(uint16_t) _actual_value);
+    Serial.println(String((uint16_t) _actual_value));
   }
 
   void update() {
@@ -251,12 +260,18 @@ public:
     return _sampling_control.getInterval();
   }
 
-  void setFreq(uint32_t frequency) {
-    setAquireInterval(1000000 / frequency);
+  void setFreq(double frequency) {
+    // 500 ticks /s = 1 Hz
+    // 500Hz = 1Hz
+    // 5000Hz = 10Hz
+    // 5000Hz = 0.2ms
+    frequency = frequency * 500;
+    setAquireInterval((uint32_t) (1000000 / frequency));
   }
 
-  uint32_t getFreq() {
-    return 1000000 / getAquireInterval();
+  double getFreq() {
+    //500 ticks /s = 1 Hz
+    return (double) 500*1000000 / (double) getAquireInterval();
   }
 
   waveforms_t getWaveform(){
@@ -266,25 +281,58 @@ public:
   void setWaveform(waveforms_t waveform){
     _waveform = waveform;
   }
+
+  void setAmplitude(double amplitude){
+    _amplitude = amplitude;
+  }
+
+  void setOffset(double offset){
+    _offset = offset;
+  }
 };
 
 //////////////////////
 //Variaveis globais //
 //////////////////////
+const int chaves[] = {2,3,4,5,6,7};
 SignalGenerator my_generator; //lazy thing, work around...
 bool status_led = false;
 char serialOp;
+uint8_t seletor;
 //////////////////
 //Main Function //
 //////////////////
 void setup() {
+  analogWriteResolution(12);
   pinMode(LED_BUILTIN, OUTPUT);
+  for(int i = 0; i < 6; i++){
+    pinMode(chaves[i], INPUT_PULLUP);
+  }
   Serial.begin(UART_BAUDRATE);
   Serial.println("Hora do show! Birl");
-  my_generator.setWaveform(ECG_WAVE);
+  my_generator.setOffset(2048);
+  my_generator.setAmplitude(1638);
+  my_generator.setWaveform(SIN_WAVE);
+  my_generator.setFreq(1); //1Hz
   my_generator.start();
 }
 
 void loop() {
+  my_generator.setFreq(map(analogRead(PINOADC),0,1023,1,10)); //1Hz
   my_generator.update();
+  if(!digitalRead(chaves[0])){
+    my_generator.setWaveform(SIN_WAVE);
+  } else if(!digitalRead(chaves[1])){
+    my_generator.setWaveform(SQUARE_WAVE);
+  } else if(!digitalRead(chaves[2])){
+    my_generator.setWaveform(TRIANGLE_WAVE);
+  } else if(!digitalRead(chaves[3])){
+    my_generator.setWaveform(RAMP_WAVE);
+  } else if(!digitalRead(chaves[4])){
+    my_generator.setWaveform(CONST_WAVE);
+  } else if(!digitalRead(chaves[5])){
+    my_generator.setWaveform(ECG_WAVE);
+  } else {
+    my_generator.setWaveform(CONST_WAVE);
+  }
 }
