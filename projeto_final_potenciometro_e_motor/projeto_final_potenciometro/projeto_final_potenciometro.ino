@@ -28,15 +28,18 @@
 
   Obs: O sentido do motor
 */
+#include<led_rgb.h>
+#include<cores_rgb.h>
+led_rgb status_led(11, 12, 13); //R_pin,G_pin,B_pin
 
 #define ANALOG_ANGULO A0
 
-#define PINO_MOTOR_A    3
-#define PINO_IN1        4
-#define PINO_IN2        5
-#define PINO_IN3        8
-#define PINO_IN4        7
-#define PINO_MOTOR_B    9
+#define PINO_MOTOR_A    2
+#define PINO_IN1        3
+#define PINO_IN2        4
+#define PINO_IN3        5
+#define PINO_IN4        6
+#define PINO_MOTOR_B    7
 
 float set_point; //Angulo desejado,
 float angulo_lido; //Angulo lido do sensor de 45º a 315ª no potenciometro
@@ -57,15 +60,18 @@ unsigned long last_print_time;
 
 void setup() {
   Kp = 1;
-  Ki = 2;
-  
+  Ki = 0;
+  Kd = 0;
+
   Serial.begin(115200);//Inicia a Serial
+  Serial1.begin(9600);//Inicia a Serial
   pinMode(PINO_MOTOR_A, OUTPUT);
   pinMode(PINO_IN1, OUTPUT);
   pinMode(PINO_IN2, OUTPUT);
   pinMode(PINO_MOTOR_B, OUTPUT);
   pinMode(PINO_IN3, OUTPUT);
   pinMode(PINO_IN4, OUTPUT);
+  status_led.init();
   setDirection(true);
 }
 
@@ -93,6 +99,27 @@ void loop() {
       Kd = cmdserial.substring(2).toFloat();
     }
   }
+
+  if (Serial1.available()) {
+    cmdserial = Serial1.readStringUntil('\n');
+    if (cmdserial.startsWith("?")) {
+      Serial1.print("Kp setado para: ") +
+      Serial1.println(Kp);
+      Serial1.print("Ki setado para: ") +
+      Serial1.println(Ki);
+      Serial1.print("Kd setado para: ") +
+      Serial1.println(Kd);
+    } else if (cmdserial.startsWith("kp")) {
+      Kp = cmdserial.substring(2).toFloat();
+      Serial1.print("Kp setado para: ") +
+      Serial1.println(Kp);
+    } else if (cmdserial.startsWith("ki")) {
+      Ki = cmdserial.substring(2).toFloat();
+    } else if (cmdserial.startsWith("kd")) {
+      Kd = cmdserial.substring(2).toFloat();
+    }
+  }
+
 
   angulo_lido = analogRead(ANALOG_ANGULO) * 270.0f / 1024.0f + 45.0f;; //Angulo lido de 45 ate 315
 
@@ -135,6 +162,7 @@ void loop() {
   setDirection(res_pid < 0);
   //analogWrite(PINO_MOTOR_A, (uint8_t) abs(res_pid));
   analogWrite(PINO_MOTOR_B, (uint8_t) abs(res_pid));
+
   if (angulo_lido > 260) {
     analogWrite(PINO_MOTOR_B, 0);
   }
@@ -146,13 +174,27 @@ void loop() {
     last_print_time = millis();
     Serial.println(
       String(set_point, 2) + "\t" +
-      String(angulo_lido, 2) + "\t" 
+      String(angulo_lido, 2) + "\t" +
       //String(erro_angulo, 2)  + "\t" +
-      //String(res_pid, 2)
+      String(res_pid, 2)
+      //String(Kp, 2) //multipliquei por 10 para ficar mais facil de visualizar no serial Plotter
+      //String(euler_degrees[2], 2)
+    );
+
+    Serial1.println(
+      String(set_point, 2) + "\t" +
+      String(angulo_lido, 2) + "\t" +
+      //String(erro_angulo, 2)  + "\t" +
+      String(res_pid, 2)
       //String(Kp, 2) //multipliquei por 10 para ficar mais facil de visualizar no serial Plotter
       //String(euler_degrees[2], 2)
     );
   }
+  uint8_t vermelho = (uint8_t) (abs(erro_angulo) * 255.0f / 80.0f);
+  vermelho = vermelho > 255 ? 255 : vermelho;
+  vermelho = vermelho < 0 ? 0 : vermelho;
+  uint8_t verde = 255 - vermelho;
+  status_led.acender(vermelho << 16 | verde << 8);
 }
 
 void setDirection(bool is_clockwise) {
