@@ -71,6 +71,8 @@ unsigned long actualTime;
 unsigned long lastTime;
 
 unsigned long last_print_time;
+String cmdserial;
+
 void setup() {
   Wire.begin(); //Inicia o I2C
   Serial.begin(115200);//Inicia a Serial
@@ -82,6 +84,7 @@ void setup() {
   pinMode(PINO_IN4, OUTPUT);
   setDirection(true);
   configuraSensor();
+  Serial.println("sketchIniciado - Aguadando primeira Leitura");
 }
 
 
@@ -109,6 +112,7 @@ void loop() {
   }
   
   numbPackets = floor(mpu.getFIFOCount() / PSDMP); //Verifica qnt de leituras no sensor
+  //USerial.println(numbPackets);
   if (numbPackets >  0) { //Se tiver ao menos 1
 
     //----------------------------------------------------
@@ -120,6 +124,7 @@ void loop() {
       euler_degrees[i] = euler[i] * 180 / M_PI; //Converte para graus
     }
 
+    
     angulo_lido = euler_degrees[1]; //0 é o X do sensor, 1 é o Y do sensor e 2 e o Z do sensor
 
     //----------------------------------------------------
@@ -127,14 +132,8 @@ void loop() {
     set_point = 0;//analogRead(ANALOG_SETPOINT) * 360.0 / 1024.0; //Le o SetPoint que pode ser de 0 a 360
 
     //----------------------------------------------------
-    //Ajusta Valor das constanste Kp,Ki e Kd se necessario
-    Kp = analogRead(A1) * 10.0 / 1024.0; //Kp,Ki e Kd podem valer de 0 a 3
-    Ki = 0; //analogRead(ANALOG_KI) * 3.0 / 1024.0;
-    Kd = 0 ;//analogRead(ANALOG_KD) * 3.0 / 1024.0;
-
-    //----------------------------------------------------
     //Calculo do erro, deltaErro e DeltaT
-    erro_angulo = angulo_lido - 0;
+    erro_angulo = angulo_lido - set_point;
     deltaErro = erro_angulo - last_erro;
 
     actualTime = micros();
@@ -149,7 +148,7 @@ void loop() {
     res_integral = Ki * erro_angulo * deltaT + res_integral; //Integração
     res_derivativo = Kd * deltaErro / deltaT; //Derivação
 
-    res_pid = res_proporcional;// + res_integral + res_derivativo;
+    res_pid = res_proporcional + res_integral + res_derivativo;
     res_pid = res_pid < -255 ? -255 : res_pid; //Limite minimo de -255
     res_pid = res_pid > 255 ? 255 : res_pid; //Limite maximo de 255
 
@@ -164,24 +163,13 @@ void loop() {
 
     //----------------------------------------------------
     //Mostra os valores na Serial para serem plotados
-    //    Serial.println(
-    //      //
-    //      //
-    //      String(euler_degrees[0], 2) + "\t" +
-    //      String(euler_degrees[1], 2) + "\t" +
-    //      String(euler_degrees[2], 2) + "\t" +
-    //      //
-    //      //
-    //      //String(Ki * 100, 2)  + "\t" +
-    //      //String(Kd * 100, 2)
-    //    );
     if (millis() - last_print_time >= 100) {
       last_print_time = millis();
       Serial.println(
-        //String(set_point, 2) + "\t" +
+        String(set_point, 2) + "\t" +
         String(angulo_lido, 2) + "\t" +
-        //String(erro_angulo, 2)  + "\t" +
-        String(res_pid * 25.5 / 255.0, 2)
+        //String(erro_angulo, 2)  + "\t"
+        String(res_pid, 2) + "\t" 
         //String(Kp * 10, 2) //multipliquei por 10 para ficar mais facil de visualizar no serial Plotter
         //String(euler_degrees[2], 2)
       );
