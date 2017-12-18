@@ -226,8 +226,8 @@ void atualizar_led() {
 
 void enviar_status() {
   Serial.println(
-    String(set_point-90, 2) + "\t" +
-    String(angulo_lido-90, 2) + "\t" +
+    String(set_point, 2) + "\t" +
+    String(angulo_lido, 2) + "\t" +
     String(erro_angulo, 2)  + "\t" +
     String(res_proporcional, 2)  + "\t" +
     String(res_integral, 2)  + "\t" +
@@ -237,8 +237,8 @@ void enviar_status() {
   ++counter_bt %= 5;
   if (counter_bt == 0) {
     Serial1.println(
-      String(set_point-90, 2) + "\t" +
-      String(angulo_lido-90, 2) + "\t" +
+      String(set_point, 2) + "\t" +
+      String(angulo_lido, 2) + "\t" +
       String(erro_angulo, 2)  + "\t" +
       String(res_proporcional, 2)  + "\t" +
       String(res_integral, 2)  + "\t" +
@@ -273,11 +273,12 @@ void controle_pid() {
   analogWrite(PINO_MOTOR_B, (uint8_t) abs(res_pid));
 
   //----------------------------------------------------
-  //Protecao do sistema
-  if (angulo_lido > 245) {
+  //Protecao do sistema..
+  if (angulo_lido > 245 && res_pid < 0) {
     analogWrite(PINO_MOTOR_B, 0);
   }
-  if (angulo_lido < 130) {
+  
+  if (angulo_lido < 130 && res_pid > 0) {
     analogWrite(PINO_MOTOR_B, 0);
   }
 }
