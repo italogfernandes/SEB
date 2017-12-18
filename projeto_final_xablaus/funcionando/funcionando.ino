@@ -61,6 +61,7 @@ void setup()
 
   Serial.begin(115200);
   lcd.begin(16, 2);
+  mensagens_iniciais();
 }
 
 void loop()
@@ -126,8 +127,102 @@ void loop()
     //Mostra no lcd
     lcd.clear();
     lcd.setCursor(0, 0);
-    lcd.print("Entrada: "+ String(entrada,0) + " ml");
+    lcd.print("Entrada: " + String(entrada, 0) + " ml");
     lcd.setCursor(0, 1);
-    lcd.print("Saida: "+ String(saida,0) + " ml");
+    lcd.print("Saida: " + String(saida, 0) + " ml");
   }
 }
+
+void mensagens_iniciais() {
+  lcd.setBacklight(HIGH);
+  lcd.setCursor(0, 0);
+  lcd.print("      SEB       ");
+  lcd.setCursor(0, 1);
+  lcd.print("    2017.2      ");
+
+  limpar_e_piscar_lcd(1000);
+
+  lcd.setCursor(0, 0);
+  lcd.print("  Reservatorio  ");
+  lcd.setCursor(0, 1);
+  lcd.print("Controle de Nivel");
+
+  delay(500);
+  lcd.clear();
+
+  lcd.setCursor(0, 0);
+  lcd.print("  Controle de  ");
+  lcd.setCursor(0, 1);
+  lcd.print("Nivel da Agua");
+
+  limpar_e_piscar_lcd(1000);
+
+  lcd.setCursor(0, 0);
+  lcd.print("Alunos: Paulo");
+  lcd.setCursor(0, 1);
+  lcd.print("Eduardo Alves");
+  delay(1000);
+  lcd.clear();
+
+  lcd.setCursor(0, 0);
+  lcd.print("Alunos: Henrique");
+  lcd.setCursor(0, 1);
+  lcd.print("Andrade Barbosa");
+  delay(1000);
+  lcd.clear();
+
+  lcd.setCursor(0, 0);
+  lcd.print("Ana Carolina");
+  lcd.setCursor(0, 1);
+  lcd.print("Torres Cresto");
+  limpar_e_piscar_lcd(1000);
+  
+  lcd.setCursor(0, 0);
+  lcd.print("Prof. Doutor");
+  lcd.setCursor(0, 1);
+  lcd.print("Sergio Oliveira");
+  
+  limpar_e_piscar_lcd(1000);
+
+  lcd.setCursor(0, 0);
+  lcd.print("Agradecimentos:");
+  lcd.setCursor(0, 1);
+  lcd.print("Ronaldo Sena");
+
+  limpar_e_piscar_lcd(1000);
+
+  lcd.setCursor(0, 0);
+  lcd.print("Agradecimentos:");
+  lcd.setCursor(0, 1);
+  lcd.print("Italo Fernandes");
+
+  limpar_e_piscar_lcd(1000);
+
+  lcd.setCursor(0, 0);
+  lcd.print("Iniciando em ...");
+  lcd.setCursor(0, 1);
+  lcd.print("       3       ");
+  limpar_e_piscar_lcd(500);
+  
+  lcd.setCursor(0, 0);
+  lcd.print("Iniciando em ...");
+  lcd.setCursor(0, 1);
+  lcd.print("       2       ");
+  limpar_e_piscar_lcd(500);
+  
+  lcd.setCursor(0, 0);
+  lcd.print("Iniciando em ...");
+  lcd.setCursor(0, 1);
+  lcd.print("       1       ");
+  limpar_e_piscar_lcd(500);
+ 
+}
+
+void limpar_e_piscar_lcd(int tempo) {
+  delay(tempo);
+  lcd.clear();
+  lcd.setBacklight(LOW);
+  delay(tempo);
+  lcd.setBacklight(HIGH);
+}
+
