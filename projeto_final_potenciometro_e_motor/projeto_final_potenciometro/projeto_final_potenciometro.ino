@@ -58,10 +58,16 @@ unsigned long lastTime;
 
 unsigned long last_print_time;
 
+bool executando;
+
+int counter_bt;
+
 void setup() {
-  Kp = 1;
+  Kp = 0;
   Ki = 0;
   Kd = 0;
+  set_point =  180;
+  executando = false;
 
   Serial.begin(115200);//Inicia a Serial
   Serial1.begin(9600);//Inicia a Serial
@@ -80,58 +86,13 @@ String cmdserial;
 void loop() {
   //----------------------------------------------------
   //Ajusta Valor das constanste Kp,Ki e Kd se necessario
-  if (Serial.available()) {
-    cmdserial = Serial.readStringUntil('\n');
-    if (cmdserial.startsWith("?")) {
-      Serial.print("Kp setado para: ") +
-      Serial.println(Kp);
-      Serial.print("Ki setado para: ") +
-      Serial.println(Ki);
-      Serial.print("Kd setado para: ") +
-      Serial.println(Kd);
-    } else if (cmdserial.startsWith("kp")) {
-      Kp = cmdserial.substring(2).toFloat();
-      Serial.print("Kp setado para: ") +
-      Serial.println(Kp);
-    } else if (cmdserial.startsWith("ki")) {
-      Ki = cmdserial.substring(2).toFloat();
-    } else if (cmdserial.startsWith("kd")) {
-      Kd = cmdserial.substring(2).toFloat();
-    }
-  }
 
-  if (Serial1.available()) {
-    cmdserial = Serial1.readStringUntil('\n');
-    if (cmdserial.startsWith("?")) {
-      Serial1.print("Kp setado para: ") +
-      Serial1.println(Kp);
-      Serial1.print("Ki setado para: ") +
-      Serial1.println(Ki);
-      Serial1.print("Kd setado para: ") +
-      Serial1.println(Kd);
-    } else if (cmdserial.startsWith("kp")) {
-      Kp = cmdserial.substring(2).toFloat();
-      Serial1.print("Kp setado para: ") +
-      Serial1.println(Kp);
-    } else if (cmdserial.startsWith("ki")) {
-      Ki = cmdserial.substring(2).toFloat();
-    } else if (cmdserial.startsWith("kd")) {
-      Kd = cmdserial.substring(2).toFloat();
-    }
-  }
+  recebe_comando_serial(); //Atualiza variaveis
+  recebe_comando_bluetooth(); //Atualiza variaveis
 
-
-  angulo_lido = analogRead(ANALOG_ANGULO) * 270.0f / 1024.0f + 45.0f;; //Angulo lido de 45 ate 315
-
-  if (angulo_lido > 260) {
-    analogWrite(PINO_MOTOR_B, 0);
-  }
-  if (angulo_lido < 100) {
-    analogWrite(PINO_MOTOR_B, 0);
-  }
   //----------------------------------------------------
-  //Realiza leitura do setPoint
-  set_point =  180; // determina o setpoint
+  //Realiza leitura do angulo e conversao
+  angulo_lido = analogRead(ANALOG_ANGULO) * 270.0f / 1024.0f + 45.0f;; //Angulo lido de 45 ate 315
 
   //----------------------------------------------------
   //Calculo do erro, deltaErro e DeltaT
@@ -143,6 +104,158 @@ void loop() {
 
   last_erro = erro_angulo;
   lastTime = actualTime;
+  //----------------------------------------------------
+  //Executa o controle  PID
+  if (executando) {
+    controle_pid(); //Executa o controle em si
+  } else {
+    digitalWrite(PINO_MOTOR_B, 0);
+  }
+
+  //----------------------------------------------------
+  //Mostra status
+  if (millis() - last_print_time >= 100) {
+    last_print_time = millis();
+    enviar_status();//Mostra o status do sistema
+  }
+  atualizar_led(); //E muda a cor de um led rgb
+}
+
+void recebe_comando_serial() {
+  if (Serial.available()) {
+    cmdserial = Serial.readStringUntil('\n');
+    if (cmdserial.startsWith("?")) {
+      mostrar_constantes_serial();
+      res_proporcional = 0; res_integral = 0; res_derivativo = 0;
+    } else if (cmdserial.startsWith("kp")) {
+      Kp = cmdserial.substring(2).toFloat();
+      mostrar_constantes_serial();
+      res_proporcional = 0; res_integral = 0; res_derivativo = 0;
+    } else if (cmdserial.startsWith("ki")) {
+      Ki = cmdserial.substring(2).toFloat();
+      mostrar_constantes_serial();
+      res_proporcional = 0; res_integral = 0; res_derivativo = 0;
+    } else if (cmdserial.startsWith("kd")) {
+      Kd = cmdserial.substring(2).toFloat();
+      mostrar_constantes_serial();
+      res_proporcional = 0; res_integral = 0; res_derivativo = 0;
+    } else if (cmdserial.startsWith("vai")) {
+      executando = true;
+      Serial.println("*********EXECUCAO INICIADA********");
+      res_proporcional = 0; res_integral = 0; res_derivativo = 0;
+    } else if (cmdserial.startsWith("para")) {
+      executando = false;
+      Serial.println("*********EXECUCAO INTERROMPIDA********");
+      res_proporcional = 0; res_integral = 0; res_derivativo = 0;
+    } else if (cmdserial.startsWith("set")) {
+      //----------------------------------------------------
+      //Realiza leitura do setPoint
+      set_point = cmdserial.substring(3).toFloat();
+      Serial.print("Set Point setado para: ");
+      Serial.println(set_point);
+      res_proporcional = 0; res_integral = 0; res_derivativo = 0;
+    }
+  }
+}
+
+void recebe_comando_bluetooth() {
+  if (Serial1.available()) {
+    cmdserial = Serial1.readStringUntil('\n');
+    if (cmdserial.startsWith("?")) {
+      mostrar_constantes_bt();
+      res_proporcional = 0; res_integral = 0; res_derivativo = 0;
+    } else if (cmdserial.startsWith("kp")) {
+      Kp = cmdserial.substring(2).toFloat();
+      mostrar_constantes_bt();
+      res_proporcional = 0; res_integral = 0; res_derivativo = 0;
+    } else if (cmdserial.startsWith("ki")) {
+      Ki = cmdserial.substring(2).toFloat();
+      mostrar_constantes_bt();
+      res_proporcional = 0; res_integral = 0; res_derivativo = 0;
+    } else if (cmdserial.startsWith("kd")) {
+      Kd = cmdserial.substring(2).toFloat();
+      mostrar_constantes_bt();
+      res_proporcional = 0; res_integral = 0; res_derivativo = 0;
+    } else if (cmdserial.startsWith("vai")) {
+      executando = true;
+      Serial1.println("*********EXECUCAO INICIADA********");
+      res_proporcional = 0; res_integral = 0; res_derivativo = 0;
+    } else if (cmdserial.startsWith("para")) {
+      executando = false;
+      Serial1.println("*********EXECUCAO INTERROMPIDA********");
+      res_proporcional = 0; res_integral = 0; res_derivativo = 0;
+    } else if (cmdserial.startsWith("set")) {
+      //----------------------------------------------------
+      //Realiza leitura do setPoint
+      set_point = cmdserial.substring(3).toFloat();
+      Serial1.print("Set Point setado para: ");
+      Serial1.println(set_point);
+      res_proporcional = 0; res_integral = 0; res_derivativo = 0;
+    }
+  }
+}
+
+void mostrar_constantes_serial() {
+  Serial.print("Kp setado para: ") +
+  Serial.println(Kp);
+  Serial.print("Ki setado para: ") +
+  Serial.println(Ki);
+  Serial.print("Kd setado para: ") +
+  Serial.println(Kd);
+}
+void mostrar_constantes_bt() {
+  Serial1.print("Kp setado para: ") +
+  Serial1.println(Kp);
+  Serial1.print("Ki setado para: ") +
+  Serial1.println(Ki);
+  Serial1.print("Kd setado para: ") +
+  Serial1.println(Kd);
+}
+
+void atualizar_led() {
+  if (abs(erro_angulo)  > 30 ) {
+    status_led.acender(0xFF << 16 | 0x00 << 8);
+  } else {
+    uint16_t erro_porcento = (abs(erro_angulo) * 255.0f / 30.0f);
+    uint8_t vermelho = erro_porcento > 255 ? 255 : erro_porcento;
+    vermelho = erro_porcento < 0 ? 0 : erro_porcento;
+    uint8_t verde = 255 - vermelho;
+    status_led.acender(vermelho << 16 | verde << 8);
+  }
+}
+
+void enviar_status() {
+  Serial.println(
+    String(set_point-90, 2) + "\t" +
+    String(angulo_lido-90, 2) + "\t" +
+    String(erro_angulo, 2)  + "\t" +
+    String(res_proporcional, 2)  + "\t" +
+    String(res_integral, 2)  + "\t" +
+    String(res_derivativo, 2)  + "\t" +
+    String(res_pid, 2)
+  );
+  ++counter_bt %= 5;
+  if (counter_bt == 0) {
+    Serial1.println(
+      String(set_point-90, 2) + "\t" +
+      String(angulo_lido-90, 2) + "\t" +
+      String(erro_angulo, 2)  + "\t" +
+      String(res_proporcional, 2)  + "\t" +
+      String(res_integral, 2)  + "\t" +
+      String(res_derivativo, 2)  + "\t" +
+      String(res_pid, 2)
+    );
+  }
+}
+
+void setDirection(bool is_clockwise) {
+  digitalWrite(PINO_IN1, is_clockwise);
+  digitalWrite(PINO_IN2, !is_clockwise);
+  digitalWrite(PINO_IN3, is_clockwise);
+  digitalWrite(PINO_IN4, !is_clockwise);
+}
+
+void controle_pid() {
 
   //----------------------------------------------------
   //Calcula as respostas P, I e D
@@ -156,50 +269,16 @@ void loop() {
 
   //----------------------------------------------------
   //Joga o sinal na saida do sistema
-
-  //analogWrite(PINO_MOTOR, (uint8_t) abs(res_pid));
-
   setDirection(res_pid < 0);
-  //analogWrite(PINO_MOTOR_A, (uint8_t) abs(res_pid));
   analogWrite(PINO_MOTOR_B, (uint8_t) abs(res_pid));
 
-  if (angulo_lido > 260) {
+  //----------------------------------------------------
+  //Protecao do sistema
+  if (angulo_lido > 245) {
     analogWrite(PINO_MOTOR_B, 0);
   }
-  if (angulo_lido < 100) {
+  if (angulo_lido < 130) {
     analogWrite(PINO_MOTOR_B, 0);
   }
-
-  if (millis() - last_print_time >= 100) {
-    last_print_time = millis();
-    Serial.println(
-      String(set_point, 2) + "\t" +
-      String(angulo_lido, 2) + "\t" +
-      //String(erro_angulo, 2)  + "\t" +
-      String(res_pid, 2)
-      //String(Kp, 2) //multipliquei por 10 para ficar mais facil de visualizar no serial Plotter
-      //String(euler_degrees[2], 2)
-    );
-
-    Serial1.println(
-      String(set_point, 2) + "\t" +
-      String(angulo_lido, 2) + "\t" +
-      //String(erro_angulo, 2)  + "\t" +
-      String(res_pid, 2)
-      //String(Kp, 2) //multipliquei por 10 para ficar mais facil de visualizar no serial Plotter
-      //String(euler_degrees[2], 2)
-    );
-  }
-  uint8_t vermelho = (uint8_t) (abs(erro_angulo) * 255.0f / 80.0f);
-  vermelho = vermelho > 255 ? 255 : vermelho;
-  vermelho = vermelho < 0 ? 0 : vermelho;
-  uint8_t verde = 255 - vermelho;
-  status_led.acender(vermelho << 16 | verde << 8);
 }
 
-void setDirection(bool is_clockwise) {
-  digitalWrite(PINO_IN1, is_clockwise);
-  digitalWrite(PINO_IN2, !is_clockwise);
-  digitalWrite(PINO_IN3, is_clockwise);
-  digitalWrite(PINO_IN4, !is_clockwise);
-}
