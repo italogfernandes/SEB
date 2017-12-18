@@ -94,6 +94,14 @@ void loop()
     integral = ki * erro * dt + integral; //Integração
 
     resposta = proporcional + integral;
+    //Fazer o motor desligar qnd o erro for pequeno
+    //fazer o motor desligar no estado estacionario
+    //Nao funcionou, vou deixar comentado
+    //    if(erro < 2_por_cento_da_entrada){
+    //      proporcional = 0;
+    //      integral = 0;
+    //      resposta = 0;
+    //    }
 
     //Limitando o sinal num maximo de enchimento e esvaziamento
     if (resposta > 50) {
@@ -176,12 +184,12 @@ void mensagens_iniciais() {
   lcd.setCursor(0, 1);
   lcd.print("Torres Cresto");
   limpar_e_piscar_lcd(1000);
-  
+
   lcd.setCursor(0, 0);
   lcd.print("Prof. Doutor");
   lcd.setCursor(0, 1);
   lcd.print("Sergio Oliveira");
-  
+
   limpar_e_piscar_lcd(1000);
 
   lcd.setCursor(0, 0);
@@ -203,19 +211,19 @@ void mensagens_iniciais() {
   lcd.setCursor(0, 1);
   lcd.print("       3       ");
   limpar_e_piscar_lcd(500);
-  
+
   lcd.setCursor(0, 0);
   lcd.print("Iniciando em ...");
   lcd.setCursor(0, 1);
   lcd.print("       2       ");
   limpar_e_piscar_lcd(500);
-  
+
   lcd.setCursor(0, 0);
   lcd.print("Iniciando em ...");
   lcd.setCursor(0, 1);
   lcd.print("       1       ");
   limpar_e_piscar_lcd(500);
- 
+
 }
 
 void limpar_e_piscar_lcd(int tempo) {
