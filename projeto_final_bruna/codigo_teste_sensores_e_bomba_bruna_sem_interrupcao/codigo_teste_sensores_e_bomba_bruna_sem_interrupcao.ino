@@ -1,12 +1,12 @@
-#define PIN_SENSOR_AGUA 3
+rr#define PIN_SENSOR_AGUA 3
 #define PIN_SENSOR_PROD 5
 #define PIN_BOMBA_AGUA 11
 #define PIN_BOMBA_PROD 13
 #define PIN_ONOFF_BOMBA_AGUA 7
 #define PIN_ONOFF_BOMBA_PROD 8
 
-volatile unsigned long count_pulsos_agua;
-volatile unsigned long count_pulsos_prod;
+unsigned long count_pulsos_agua;
+unsigned long count_pulsos_prod;
 
 unsigned long last_millis;
 unsigned long current_millis;
