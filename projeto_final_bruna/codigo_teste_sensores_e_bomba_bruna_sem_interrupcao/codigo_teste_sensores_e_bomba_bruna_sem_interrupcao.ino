@@ -1,4 +1,4 @@
-rr#define PIN_SENSOR_AGUA 3
+#define PIN_SENSOR_AGUA 3
 #define PIN_SENSOR_PROD 5
 #define PIN_BOMBA_AGUA 11
 #define PIN_BOMBA_PROD 13
